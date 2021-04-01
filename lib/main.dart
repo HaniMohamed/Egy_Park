@@ -3,6 +3,7 @@ import 'package:egy_park/screens/login.dart';
 import 'package:egy_park/screens/map_screen.dart';
 import 'package:egy_park/screens/park_details.dart';
 import 'package:egy_park/screens/signup.dart';
+import 'package:egy_park/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Egy Park',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -27,14 +28,13 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: LoginScreen(),
+      home: SplashScreen(),
       routes: {
         '/login': (context) => LoginScreen(),
         '/signup': (context) => SignupScreen(),
         '/maps': (context) => MapScreen(),
         '/details': (context) => ParkScreen(),
         '/booked': (context) => BookedScreen(),
-
       },
     );
   }
