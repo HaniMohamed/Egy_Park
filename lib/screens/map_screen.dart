@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:egy_park/widgets/floating_appbar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -24,6 +25,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   initState() {
     super.initState();
+
     _locateMe();
     _currentPosition = CameraPosition(
       target: LatLng(_lat, _lng),
@@ -93,10 +95,11 @@ class _MapScreenState extends State<MapScreen> {
               },
             ),
             Positioned(
-                top: 10,
-                left: 10,
-                right: 10,
-                child: FloatingAppBar(),)
+              top: 10,
+              left: 10,
+              right: 10,
+              child: FloatingAppBar(),
+            )
           ],
         ),
       ),

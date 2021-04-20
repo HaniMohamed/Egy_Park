@@ -1,4 +1,6 @@
 import 'package:egy_park/screens/login.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart'
     '';
 
@@ -8,14 +10,22 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  void initState() {
+  void initState() async {
     super.initState();
-    Future.delayed(Duration(seconds: 2), () {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => LoginScreen(),
-          ));
+    Firebase.initializeApp().then((value) {
+      FirebaseAuth auth = FirebaseAuth.instance;
+
+      Future.delayed(Duration(seconds: 2), () {
+        FirebaseAuth.instance.authStateChanges().listen((User user) {
+          if (user == null) {
+            print('User is currently signed out!');
+            Navigator.of(context).popAndPushNamed("/login");
+          } else {
+            print('User is signed in!');
+            Navigator.of(context).popAndPushNamed("/maps");
+          }
+        });
+      });
     });
   }
 

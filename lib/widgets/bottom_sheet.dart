@@ -1,7 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:time_range_picker/time_range_picker.dart';
 
 class BottomBookingSheet extends StatefulWidget {
+  final String slotId;
+
+  BottomBookingSheet({this.slotId});
+
   @override
   State<StatefulWidget> createState() {
     return _BottomSheetState();
@@ -10,9 +16,26 @@ class BottomBookingSheet extends StatefulWidget {
 
 class _BottomSheetState extends State<BottomBookingSheet> {
   TimeRange _result;
+  String email;
+  CollectionReference slots = FirebaseFirestore.instance.collection('slots');
   List<String> payMethods = ["Bank Card", "Vodafone Cash", "Smart Wallet"];
-  String _dropdownValue ;
+  String _dropdownValue;
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    FirebaseAuth auth = FirebaseAuth.instance;
+    // CollectionReference slots = FirebaseFirestore.instance.collection('slots');
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    if (auth.currentUser != null) {
+      print(auth.currentUser.email);
+      email = auth.currentUser.email;
+    } else {
+      Navigator.popAndPushNamed(context, "/login");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +57,7 @@ class _BottomSheetState extends State<BottomBookingSheet> {
                   onPressed: () async {
                     TimeRange result = await showTimeRangePicker(
                       context: context,
-                      interval: Duration(minutes: 15),
+                      interval: Duration(hours: 1),
                       labels: [
                         "12 pm",
                         "3 am",
@@ -96,7 +119,11 @@ class _BottomSheetState extends State<BottomBookingSheet> {
                 ),
                 ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).popAndPushNamed("/booked");
+                      // print(_result.startTime.hour.toString() +
+                      //     "\n" +
+                      //     _result.endTime.hour.toString());
+                      _bookSlot(_result.startTime.hour.toString(),
+                          _result.endTime.hour.toString());
                     },
                     child: Text("Book")),
               ],
@@ -105,5 +132,14 @@ class _BottomSheetState extends State<BottomBookingSheet> {
         ],
       ),
     );
+  }
+
+  Future<void> _bookSlot(from, to) {
+    return slots
+        .doc(widget.slotId)
+        .update({'booked_by': email, 'from': from, "to": to}).then((value) {
+      print("Slot booked");
+      Navigator.of(context).popAndPushNamed("/booked");
+    }).catchError((error) => print("Failed to add user: $error"));
   }
 }

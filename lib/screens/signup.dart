@@ -1,6 +1,8 @@
 import 'package:egy_park/screens/login.dart';
 import 'package:egy_park/screens/map_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -10,14 +12,15 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupState extends State<SignupScreen> {
-  TextEditingController nameController,
-      phoneController,
-      mailController,
+  TextEditingController nameController = TextEditingController(),
+      phoneController = TextEditingController(),
+      mailController = TextEditingController(),
       passController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    FirebaseAuth auth = FirebaseAuth.instance;
   }
 
   @override
@@ -116,8 +119,41 @@ class _SignupState extends State<SignupScreen> {
                         width: 20,
                       ),
                       ElevatedButton(
-                          onPressed: () {
-                            Navigator.popAndPushNamed(context, '/maps');
+                          onPressed: () async {
+                            if (mailController.text != null &&
+                                passController.text != null &&
+                                nameController.text != null &&
+                                phoneController.text != null) {
+                              try {
+                                UserCredential userCredential =
+                                    await FirebaseAuth.instance
+                                        .createUserWithEmailAndPassword(
+                                  email: mailController.text,
+                                  password: passController.text,
+                                );
+
+                                Navigator.popAndPushNamed(context, '/maps');
+                              } on FirebaseAuthException catch (e) {
+                                if (e.code == 'weak-password') {
+                                  print('The password provided is too weak.');
+                                  _showToast(
+                                      'The password provided is too weak.',
+                                      Colors.red);
+                                } else if (e.code == 'email-already-in-use') {
+                                  print(
+                                      'The account already exists for that email.');
+                                  _showToast(
+                                      'The account already exists for that email.',
+                                      Colors.red);
+                                }
+                              } catch (e) {
+                                print(e);
+                                _showToast(e.toString(), Colors.black);
+                              }
+                            } else {
+                              _showToast("you have to fill all fields !!",
+                                  Colors.black);
+                            }
                           },
                           child: Text("Sign up")),
                     ],
@@ -129,5 +165,16 @@ class _SignupState extends State<SignupScreen> {
         ),
       ),
     );
+  }
+
+  void _showToast(text, bkColor) {
+    Fluttertoast.showToast(
+        msg: text,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: bkColor,
+        textColor: Colors.white,
+        fontSize: 16.0);
   }
 }

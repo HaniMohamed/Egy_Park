@@ -1,6 +1,8 @@
 import 'package:egy_park/screens/map_screen.dart';
 import 'package:egy_park/screens/signup.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -10,12 +12,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginState extends State<LoginScreen> {
-  TextEditingController phoneController,
+  TextEditingController mailController = TextEditingController(),
       passController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    FirebaseAuth auth = FirebaseAuth.instance;
   }
 
   @override
@@ -32,12 +35,12 @@ class _LoginState extends State<LoginScreen> {
                 height: 35,
               ),
               TextField(
-                controller: phoneController,
-                keyboardType: TextInputType.number,
+                controller: mailController,
+                keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
-                  labelText: "Enter your phone number",
-                  hintText: "01xxxxxxxxx",
-                  icon: Icon(Icons.phone),
+                  labelText: "Enter your email address",
+                  hintText: "test@test.com",
+                  icon: Icon(Icons.mail),
                   border: OutlineInputBorder(
                     borderSide:
                         const BorderSide(color: Colors.blue, width: 2.0),
@@ -77,8 +80,33 @@ class _LoginState extends State<LoginScreen> {
                     width: 20,
                   ),
                   ElevatedButton(
-                      onPressed: () {
-                        Navigator.popAndPushNamed(context, '/maps');
+                      onPressed: () async {
+                        if (mailController.text != null &&
+                            passController.text != null) {
+                          try {
+                            UserCredential userCredential = await FirebaseAuth
+                                .instance
+                                .signInWithEmailAndPassword(
+                                    email: mailController.text,
+                                    password: passController.text);
+
+                            Navigator.popAndPushNamed(context, '/maps');
+                          } on FirebaseAuthException catch (e) {
+                            if (e.code == 'user-not-found') {
+                              print('No user found for that email.');
+                              _showToast(
+                                  'No user found for that email.', Colors.red);
+                            } else if (e.code == 'wrong-password') {
+                              print('Wrong password provided for that user.');
+                              _showToast(
+                                  'Wrong password provided for that user.',
+                                  Colors.red);
+                            }
+                          }
+                        } else {
+                          _showToast(
+                              "you have to fill all fields !!", Colors.black);
+                        }
                       },
                       child: Text("Login")),
                 ],
@@ -88,5 +116,16 @@ class _LoginState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  void _showToast(text, bkColor) {
+    Fluttertoast.showToast(
+        msg: text,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: bkColor,
+        textColor: Colors.white,
+        fontSize: 16.0);
   }
 }
