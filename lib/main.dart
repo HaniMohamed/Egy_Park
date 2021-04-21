@@ -22,6 +22,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     initializeDefault();
     return MaterialApp(
+      showSemanticsDebugger: false,
+      debugShowCheckedModeBanner: false,
+      debugShowMaterialGrid: false,
       title: 'Egy Park',
       theme: ThemeData(
         primarySwatch: Colors.blue,

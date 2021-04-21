@@ -119,16 +119,13 @@ class _BottomSheetState extends State<BottomBookingSheet> {
                 ),
                 ElevatedButton(
                     onPressed: () {
-                      // print(_result.startTime.hour.toString() +
-                      //     "\n" +
-                      //     _result.endTime.hour.toString());
                       _bookSlot(_result.startTime.hour.toString(),
                           _result.endTime.hour.toString());
                     },
                     child: Text("Book")),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
