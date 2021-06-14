@@ -12,13 +12,13 @@ class ParkSlot extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        color == Colors.green
+        status.contains("Available")
             ? showBottomSheet(context, slotId)
             : print("#########################3 no");
       },
       child: Container(
-        width: 120,
-        height: 65,
+        width: 200,
+        height: 100,
         child: Card(
           color: color,
           elevation: 5,

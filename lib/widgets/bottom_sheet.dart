@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:time_range_picker/time_range_picker.dart';
 
@@ -17,7 +18,7 @@ class BottomBookingSheet extends StatefulWidget {
 class _BottomSheetState extends State<BottomBookingSheet> {
   TimeRange _result;
   String email;
-  CollectionReference slots = FirebaseFirestore.instance.collection('slots');
+  final databaseReference = FirebaseDatabase.instance.reference();
   List<String> payMethods = ["Bank Card", "Vodafone Cash", "Smart Wallet"];
   String _dropdownValue;
 
@@ -45,7 +46,7 @@ class _BottomSheetState extends State<BottomBookingSheet> {
         children: [
           AppBar(
             title: Text(
-              "Booking Slot A ",
+              "Booking Slot ${widget.slotId} ",
             ),
           ),
           Container(
@@ -96,6 +97,10 @@ class _BottomSheetState extends State<BottomBookingSheet> {
                     color: Colors.grey.shade300,
                   ),
                 ),
+                _result != null
+                    ? Text(
+                        "Cost: ${calcCost(_result.startTime.hour, _result.endTime.hour)}")
+                    : Container(),
                 Container(
                   padding: EdgeInsets.only(right: 10, left: 10),
                   child: DropdownButton(
@@ -121,6 +126,10 @@ class _BottomSheetState extends State<BottomBookingSheet> {
                     onPressed: () {
                       _bookSlot(_result.startTime.hour.toString(),
                           _result.endTime.hour.toString());
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("Slot booked successfuly"),
+                      ));
+                      Navigator.pop(context);
                     },
                     child: Text("Book")),
               ],
@@ -132,11 +141,19 @@ class _BottomSheetState extends State<BottomBookingSheet> {
   }
 
   Future<void> _bookSlot(from, to) {
-    return slots
-        .doc(widget.slotId)
-        .update({'booked_by': email, 'from': from, "to": to}).then((value) {
-      print("Slot booked");
-      Navigator.of(context).popAndPushNamed("/booked");
-    }).catchError((error) => print("Failed to add user: $error"));
+    return databaseReference
+        .child('slots')
+        .child(widget.slotId)
+        .update({'booked by': email, 'from': from, "to": to});
+  }
+
+  double calcCost(from, to) {
+    double hourCost;
+    if (widget.slotId == "A" || widget.slotId == "B")
+      hourCost = 25;
+    else
+      hourCost = 50;
+
+    return ((to - from) * hourCost).abs();
   }
 }

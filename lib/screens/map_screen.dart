@@ -14,8 +14,8 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  double _lat = 13.0827;
-  double _lng = 80.2707;
+  double _lat = 30.026258;
+  double _lng = 31.492128;
   Completer<GoogleMapController> _controller = Completer();
   Location location = new Location();
   bool _serviceEnabled;
@@ -49,18 +49,18 @@ class _MapScreenState extends State<MapScreen> {
         return;
       }
     }
-    await location.getLocation().then((res) async {
-      final GoogleMapController controller = await _controller.future;
-      final _position = CameraPosition(
-        target: LatLng(res.latitude, res.longitude),
-        zoom: 12,
-      );
-      controller.animateCamera(CameraUpdate.newCameraPosition(_position));
-      setState(() {
-        _lat = res.latitude;
-        _lng = res.longitude;
-      });
-    });
+    // await location.getLocation().then((res) async {
+    //   final GoogleMapController controller = await _controller.future;
+    //   final _position = CameraPosition(
+    //     target: LatLng(res.latitude, res.longitude),
+    //     zoom: 12,
+    //   );
+    //   controller.animateCamera(CameraUpdate.newCameraPosition(_position));
+    //   setState(() {
+    //     _lat = res.latitude;
+    //     _lng = res.longitude;
+    //   });
+    // });
   }
 
   @override
@@ -77,18 +77,18 @@ class _MapScreenState extends State<MapScreen> {
               markers: {
                 Marker(
                   markerId: MarkerId('marker1'),
-                  position: LatLng(_lat + 0.0225, _lng + 0.0305),
+                  position: LatLng(30.026258, 31.492128),
                   onTap: () {
                     Navigator.of(context).pushNamed("/details");
                   },
                 ),
-                Marker(
-                  markerId: MarkerId('marker2'),
-                  position: LatLng(_lat - 0.0225, _lng - 0.0305),
-                  onTap: () {
-                    Navigator.of(context).pushNamed("/details");
-                  },
-                )
+                // Marker(
+                //   markerId: MarkerId('marker2'),
+                //   position: LatLng(_lat - 0.0225, _lng - 0.0305),
+                //   onTap: () {
+                //     Navigator.of(context).pushNamed("/details");
+                //   },
+                // )
               },
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
