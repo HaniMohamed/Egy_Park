@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class BookedScreen extends StatefulWidget {
+  String data;
+  BookedScreen(this.data);
   @override
   State<StatefulWidget> createState() {
     return _BookedScreenState();
@@ -11,19 +13,10 @@ class BookedScreen extends StatefulWidget {
 }
 
 class _BookedScreenState extends State<BookedScreen> {
-  String email;
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    FirebaseAuth auth = FirebaseAuth.instance;
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-    if (auth.currentUser != null) {
-      print(auth.currentUser.email);
-      email = auth.currentUser.email.toString();
-    }
   }
 
   @override
@@ -37,7 +30,7 @@ class _BookedScreenState extends State<BookedScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             QrImage(
-              data: email,
+              data: widget.data,
               version: QrVersions.auto,
               size: 200.0,
             ),

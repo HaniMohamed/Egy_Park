@@ -1,7 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
 
+import 'package:egy_park/screens/booked.dart';
 import 'package:egy_park/widgets/floating_appbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -14,6 +18,8 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
+  final databaseReference = FirebaseDatabase.instance.reference();
+
   double _lat = 30.026258;
   double _lng = 31.492128;
   Completer<GoogleMapController> _controller = Completer();
@@ -22,11 +28,44 @@ class _MapScreenState extends State<MapScreen> {
   PermissionStatus _permissionGranted;
   CameraPosition _currentPosition;
 
+  String bookedSlotData;
+
+  Map<dynamic, dynamic> data;
+
+  void haveBookedSlot() {
+    DateTime now = DateTime.now();
+    databaseReference.once().then((DataSnapshot snapshot) {
+      setState(() {
+        Map<dynamic, dynamic> slots = snapshot.value["slots"];
+        slots.forEach((key, value) {
+          if (value['booked by'].toString().contains("hani")) {
+            // log("\n\n ${value['date'].toString()} \n  ${DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).toString()} \n\n\n");
+            if (value['date'].toString() ==
+                DateTime(DateTime.now().year, DateTime.now().month,
+                        DateTime.now().day)
+                    .toString()) {
+              // log("heeerrrrrreeeeee");
+              if (now.hour >= int.parse(value['from'].toString()) ||
+                  now.hour <= int.parse(value['to'].toString())) {
+                print(
+                    "$key ///  ${value['booked by']}=> ${value['from']} : ${value['to']}");
+
+                bookedSlotData = " ${value['booked by']},$key";
+              }
+            }
+          }
+        });
+        // log(slots.toString());
+      });
+    });
+  }
+
   @override
   initState() {
     super.initState();
 
     _locateMe();
+    haveBookedSlot();
     _currentPosition = CameraPosition(
       target: LatLng(_lat, _lng),
       zoom: 12,
@@ -103,9 +142,31 @@ class _MapScreenState extends State<MapScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.my_location),
-        onPressed: () => _locateMe(),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            child: Icon(Icons.my_location),
+            onPressed: () => _locateMe(),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          bookedSlotData == null
+              ? Container(
+                  width: 15,
+                )
+              : FloatingActionButton(
+                  child: Icon(Icons.qr_code),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                BookedScreen(bookedSlotData)));
+                  },
+                ),
+        ],
       ),
     );
   }

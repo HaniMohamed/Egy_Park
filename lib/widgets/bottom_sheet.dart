@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:egy_park/screens/booked.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -126,10 +129,6 @@ class _BottomSheetState extends State<BottomBookingSheet> {
                     onPressed: () {
                       _bookSlot(_result.startTime.hour.toString(),
                           _result.endTime.hour.toString());
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content: Text("Slot booked successfuly"),
-                      ));
-                      Navigator.pop(context);
                     },
                     child: Text("Book")),
               ],
@@ -141,10 +140,18 @@ class _BottomSheetState extends State<BottomBookingSheet> {
   }
 
   Future<void> _bookSlot(from, to) {
-    return databaseReference
-        .child('slots')
-        .child(widget.slotId)
-        .update({'booked by': email, 'from': from, "to": to});
+    databaseReference.child('slots').child(widget.slotId).update({
+      'booked by': email,
+      'from': from,
+      "to": to,
+      "date": DateTime(
+              DateTime.now().year, DateTime.now().month, DateTime.now().day)
+          .toString()
+    });
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => BookedScreen("$email,${widget.slotId}")));
   }
 
   double calcCost(from, to) {

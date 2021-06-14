@@ -119,6 +119,8 @@ class _ParkScreenState extends State<ParkScreen> {
                                                 data["slots"]["A"]['from']
                                                     .toString(),
                                                 data["slots"]["A"]['to']
+                                                    .toString(),
+                                                data["slots"]["A"]["date"]
                                                     .toString())
                                             ? ParkSlot("A", Colors.transparent,
                                                 "A" + "\nOccupied", null)
@@ -137,6 +139,8 @@ class _ParkScreenState extends State<ParkScreen> {
                                                 data["slots"]["C"]['from']
                                                     .toString(),
                                                 data["slots"]["C"]['to']
+                                                    .toString(),
+                                                data["slots"]["C"]["date"]
                                                     .toString())
                                             ? ParkSlot("C", Colors.transparent,
                                                 "C" + "\nOccupied", null)
@@ -156,6 +160,8 @@ class _ParkScreenState extends State<ParkScreen> {
                                                 data["slots"]["B"]['from']
                                                     .toString(),
                                                 data["slots"]["B"]['to']
+                                                    .toString(),
+                                                data["slots"]["B"]["date"]
                                                     .toString())
                                             ? ParkSlot("B", Colors.transparent,
                                                 "B" + "\nOccupied", null)
@@ -174,6 +180,8 @@ class _ParkScreenState extends State<ParkScreen> {
                                                 data["slots"]["D"]['from']
                                                     .toString(),
                                                 data["slots"]["D"]['to']
+                                                    .toString(),
+                                                data["slots"]["D"]["date"]
                                                     .toString())
                                             ? ParkSlot("D", Colors.transparent,
                                                 "D" + "\nOccupied", null)
@@ -234,12 +242,12 @@ class _ParkScreenState extends State<ParkScreen> {
                     topRight: const Radius.circular(10.0),
                   ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    isLoading
-                        ? Center(child: CircularProgressIndicator())
-                        : Row(
+                child: isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Row(
                             children: [
                               Text(
                                 "Available slots: ",
@@ -264,32 +272,33 @@ class _ParkScreenState extends State<ParkScreen> {
                               )
                             ],
                           ),
-                    Row(
-                      children: [
-                        Text(
-                          "Busy slots: ",
-                          style: TextStyle(color: Colors.white, fontSize: 18),
-                        ),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white),
-                            borderRadius: new BorderRadius.all(
-                              Radius.circular(10.0),
-                            ),
+                          Row(
+                            children: [
+                              Text(
+                                "Busy slots: ",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 18),
+                              ),
+                              Container(
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white),
+                                  borderRadius: new BorderRadius.all(
+                                    Radius.circular(10.0),
+                                  ),
+                                ),
+                                child: Text(
+                                  "${data["Busy"]}",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              )
+                            ],
                           ),
-                          child: Text(
-                            "${data["Busy"]}",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        )
-                      ],
-                    ),
-                  ],
-                ),
+                        ],
+                      ),
               )),
             ],
           ),
@@ -298,7 +307,7 @@ class _ParkScreenState extends State<ParkScreen> {
     );
   }
 
-  bool isBooked(String bookedBy, String from, String to) {
+  bool isBooked(String bookedBy, String from, String to, String date) {
     DateTime now = DateTime.now();
     print(
         "############# ${bookedBy.toString()} /  ${from.toString()} /  ${to.toString()} /");
@@ -306,6 +315,10 @@ class _ParkScreenState extends State<ParkScreen> {
     if (bookedBy == null || from == null || to == null) {
       print("############# heeeeeeeereeeeeeeee");
 
+      return false;
+    } else if (date !=
+        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)
+            .toString()) {
       return false;
     } else if (now.hour < int.parse(from) || now.hour > int.parse(to)) {
       print("############# " + now.hour.toString());
