@@ -6,6 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:time_range_picker/time_range_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'dart:async';
 
 class BottomBookingSheet extends StatefulWidget {
   final String slotId;
@@ -19,6 +22,9 @@ class BottomBookingSheet extends StatefulWidget {
 }
 
 class _BottomSheetState extends State<BottomBookingSheet> {
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      new FlutterLocalNotificationsPlugin();
+
   TimeRange _result;
   String email;
   final databaseReference = FirebaseDatabase.instance.reference();
@@ -148,6 +154,7 @@ class _BottomSheetState extends State<BottomBookingSheet> {
               DateTime.now().year, DateTime.now().month, DateTime.now().day)
           .toString()
     });
+    showNotification();
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -162,5 +169,23 @@ class _BottomSheetState extends State<BottomBookingSheet> {
       hourCost = 50;
 
     return ((to - from) * hourCost).abs();
+  }
+
+  showNotification() async {
+    var time = new DateTime(DateTime.now().year, DateTime.now().month,
+        DateTime.now().day, _result.endTime.hour - 1, 45); //at 3.30
+    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+        'EgyPark channel id', 'EgyPark channel name', 'EgyPark description');
+    var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
+    var platformChannelSpecifics = new NotificationDetails(
+        android: androidPlatformChannelSpecifics,
+        iOS: iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.schedule(
+        0,
+        'EgyPark',
+        'Your booked parking-slot about to end in 15 minutes',
+        time,
+        platformChannelSpecifics);
+    log("scheduled notification at ${time.hour}/${time.minute}");
   }
 }
