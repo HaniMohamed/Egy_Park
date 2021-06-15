@@ -6,6 +6,7 @@ import 'package:egy_park/screens/booked.dart';
 import 'package:egy_park/widgets/floating_appbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -19,6 +20,7 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   final databaseReference = FirebaseDatabase.instance.reference();
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   double _lat = 30.026258;
   double _lng = 31.492128;
@@ -31,6 +33,20 @@ class _MapScreenState extends State<MapScreen> {
   String bookedSlotData;
 
   Map<dynamic, dynamic> data;
+
+  messagingConfig() async {
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+
+    print('User granted permission: ${settings.authorizationStatus}');
+  }
 
   void haveBookedSlot() {
     DateTime now = DateTime.now();
@@ -63,7 +79,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   initState() {
     super.initState();
-
+    messagingConfig();
     _locateMe();
     haveBookedSlot();
     _currentPosition = CameraPosition(
