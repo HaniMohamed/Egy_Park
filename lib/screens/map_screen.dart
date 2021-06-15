@@ -77,7 +77,7 @@ class _MapScreenState extends State<MapScreen> {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       new FlutterLocalNotificationsPlugin();
 
-  initLocalNotification() {
+  initLocalNotification() async {
     var initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     var initializationSettingsIOS = IOSInitializationSettings();
@@ -86,6 +86,8 @@ class _MapScreenState extends State<MapScreen> {
     flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
     );
+
+    await FirebaseMessaging.instance.subscribeToTopic('egypark');
   }
 
   @override
