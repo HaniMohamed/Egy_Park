@@ -22,7 +22,6 @@ class _ParkScreenState extends State<ParkScreen> {
   String email;
   bool isLoading = false;
   int floor = 0;
-
   bool pressed = true;
   bool isSwitched = false;
   var textValue = 'Switch is OFF';
@@ -337,6 +336,6 @@ class _ParkScreenState extends State<ParkScreen> {
           return BottomBookingSheet(
             slotId: slot,
           );
-        });
+        }).then((value) => getData());
   }
 }

@@ -192,10 +192,11 @@ class _MapScreenState extends State<MapScreen> {
                   child: Icon(Icons.qr_code),
                   onPressed: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                BookedScreen(bookedSlotData)));
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    BookedScreen(bookedSlotData)))
+                        .then((value) => haveBookedSlot());
                   },
                 ),
         ],
